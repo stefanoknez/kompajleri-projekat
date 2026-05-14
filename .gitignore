@@ -1,0 +1,36 @@
+# Kompajlirani objektni fajlovi
+*.o
+*.obj
+
+# Izvrsni fajlovi (Windows)
+*.exe
+
+# Flex/Bison generisani fajlovi
+lex.yy.c
+*.tab.c
+*.tab.h
+*.yy.c
+
+# Izvrsni fajlovi bez ekstenzije (gcc output na macOS/Linux)
+# Ignoriraj fajlove bez tacke u imenu koji su u build folderima
+vjezbe/**/out
+vjezbe/**/a.out
+Domaci/**/out
+Domaci/**/a.out
+
+# macOS sistemski fajlovi
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Vim privremeni fajlovi
+*.swp
+*.swo
+*~
+
+# VSCode
+.vscode/
+
+# Zip arhive (vec raspakovane)
+*.zip
