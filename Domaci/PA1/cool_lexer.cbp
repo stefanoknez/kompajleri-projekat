@@ -21,10 +21,10 @@
 					<Add option="-g" />
 				</Compiler>
 				<ExtraCommands>
-					<!-- Before: flex -> make -> copy binary to bin/Debug/cool_lexer -->
+					<!-- One pre-build step does everything: flex -> make -> copy ->
+					     open Terminal that runs the lexer. Runs on every Build (Ctrl-F9),
+					     even when "up to date", because pre-build steps always run. -->
 					<Add before='bash &quot;$(PROJECT_DIR)run_flex.sh&quot;' />
-					<!-- After: open a Terminal window that runs the lexer on test.cl -->
-					<Add after="bash /Users/stefanoknez/PA1_open_terminal.sh" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -39,7 +39,6 @@
 				</Compiler>
 				<ExtraCommands>
 					<Add before='bash &quot;$(PROJECT_DIR)run_flex.sh&quot;' />
-					<Add after="bash /Users/stefanoknez/PA1_open_terminal.sh" />
 				</ExtraCommands>
 			</Target>
 		</Build>
