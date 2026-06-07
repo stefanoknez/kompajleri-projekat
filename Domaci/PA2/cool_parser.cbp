@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cool_parser" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<!-- type=4 : Commands only. CodeBlocks does NOT compile or run
+				     anything itself; run_build.sh does bison+flex+make+copy and
+				     then opens a Terminal running the parser. (Same setup as PA1.) -->
+				<Option output="bin/Debug/parser" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option type="4" />
+				<Option compiler="gcc" />
+				<ExtraCommands>
+					<Add before='bash &quot;$(PROJECT_DIR)run_build.sh&quot;' />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+		</Compiler>
+		<!-- All units are edit-only (compile=0, link=0); run_build.sh builds. -->
+		<Unit filename="cool.y"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool.flex"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="parser-main.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.handcode.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="tree.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="tree.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="stringtab.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="stringtab.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="utilities.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="utilities.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="dumptype.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="good.cl"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="bad.cl"><Option compile="0" /><Option link="0" /></Unit>
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
