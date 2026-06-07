@@ -10,3 +10,6 @@ obj/
 *.o
 *.depend
 *.layout
+
+# VS Code local settings
+.vscode/
