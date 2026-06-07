@@ -7,9 +7,14 @@
         <Option compiler="gcc" />
         <Build>
             <Target title="Debug">
-                <Option output="bin/Debug/cool_lexer" prefix_auto="1" extension_auto="1" />
-                <Option working_dir="." />
-                <Option parameters="test.cl" />
+                <!--
+                    Output and working_dir use ~/PA1 symlink (no spaces in path).
+                    CodeBlocks on macOS uses osascript to open Terminal, which
+                    breaks when the path contains spaces — the symlink bypasses this.
+                -->
+                <Option output="/Users/stefanoknez/PA1/bin/Debug/cool_lexer" prefix_auto="1" extension_auto="1" />
+                <Option working_dir="/Users/stefanoknez/PA1" />
+                <Option parameters="/Users/stefanoknez/PA1_test.cl" />
                 <Option type="1" />
                 <Option compiler="gcc" />
                 <Option createDefines="0" />
@@ -19,20 +24,14 @@
                     <Add option="-Wno-unused-function" />
                     <Add option="-g" />
                 </Compiler>
-                <!--
-                    Pre-build step: runs flex with absolute path before compilation.
-                    macOS GUI apps do NOT inherit the shell PATH, so 'flex' alone
-                    would fail. We use the full Homebrew path instead.
-                    This regenerates lex.yy.cc every time you press Build (F9).
-                -->
                 <ExtraCommands>
                     <Add before="bash &quot;$(PROJECT_DIR)run_flex.sh&quot;" />
                 </ExtraCommands>
             </Target>
             <Target title="Release">
-                <Option output="bin/Release/cool_lexer" prefix_auto="1" extension_auto="1" />
-                <Option working_dir="." />
-                <Option parameters="test.cl" />
+                <Option output="/Users/stefanoknez/PA1/bin/Release/cool_lexer" prefix_auto="1" extension_auto="1" />
+                <Option working_dir="/Users/stefanoknez/PA1" />
+                <Option parameters="/Users/stefanoknez/PA1_test.cl" />
                 <Option type="1" />
                 <Option compiler="gcc" />
                 <Option createDefines="0" />
@@ -51,7 +50,6 @@
             <Add option="-Wall" />
             <Add option="-Wno-unused-function" />
         </Compiler>
-        <!-- Source files -->
         <Unit filename="cool.flex">
             <Option compile="0" />
             <Option link="0" />
@@ -68,7 +66,6 @@
         <Unit filename="main.cc">
             <Option compilerVar="CPP" />
         </Unit>
-        <!-- Headers (shown in project tree but not compiled directly) -->
         <Unit filename="cool-parse.h">
             <Option compile="0" />
             <Option link="0" />
@@ -81,12 +78,10 @@
             <Option compile="0" />
             <Option link="0" />
         </Unit>
-        <!-- Build helper script -->
         <Unit filename="run_flex.sh">
             <Option compile="0" />
             <Option link="0" />
         </Unit>
-        <!-- Test input -->
         <Unit filename="test.cl">
             <Option compile="0" />
             <Option link="0" />
