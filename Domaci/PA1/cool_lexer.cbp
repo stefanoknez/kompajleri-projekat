@@ -8,6 +8,8 @@
         <Build>
             <Target title="Debug">
                 <Option output="bin/Debug/cool_lexer" prefix_auto="1" extension_auto="1" />
+                <Option working_dir="." />
+                <Option parameters="test.cl" />
                 <Option type="1" />
                 <Option compiler="gcc" />
                 <Option createDefines="0" />
@@ -17,13 +19,20 @@
                     <Add option="-Wno-unused-function" />
                     <Add option="-g" />
                 </Compiler>
-                <!-- Pre-build step: regenerate lex.yy.cc from cool.flex whenever you change cool.flex -->
+                <!--
+                    Pre-build step: runs flex with absolute path before compilation.
+                    macOS GUI apps do NOT inherit the shell PATH, so 'flex' alone
+                    would fail. We use the full Homebrew path instead.
+                    This regenerates lex.yy.cc every time you press Build (F9).
+                -->
                 <ExtraCommands>
-                    <Add before="flex -o lex.yy.cc cool.flex" />
+                    <Add before="/opt/homebrew/opt/flex/bin/flex -o lex.yy.cc cool.flex" />
                 </ExtraCommands>
             </Target>
             <Target title="Release">
                 <Option output="bin/Release/cool_lexer" prefix_auto="1" extension_auto="1" />
+                <Option working_dir="." />
+                <Option parameters="test.cl" />
                 <Option type="1" />
                 <Option compiler="gcc" />
                 <Option createDefines="0" />
@@ -33,7 +42,7 @@
                     <Add option="-Wno-unused-function" />
                 </Compiler>
                 <ExtraCommands>
-                    <Add before="flex -o lex.yy.cc cool.flex" />
+                    <Add before="/opt/homebrew/opt/flex/bin/flex -o lex.yy.cc cool.flex" />
                 </ExtraCommands>
             </Target>
         </Build>
