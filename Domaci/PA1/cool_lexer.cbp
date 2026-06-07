@@ -26,7 +26,7 @@
                     This regenerates lex.yy.cc every time you press Build (F9).
                 -->
                 <ExtraCommands>
-                    <Add before="/opt/homebrew/opt/flex/bin/flex -o lex.yy.cc cool.flex" />
+                    <Add before="bash &quot;$(PROJECT_DIR)run_flex.sh&quot;" />
                 </ExtraCommands>
             </Target>
             <Target title="Release">
@@ -42,7 +42,7 @@
                     <Add option="-Wno-unused-function" />
                 </Compiler>
                 <ExtraCommands>
-                    <Add before="/opt/homebrew/opt/flex/bin/flex -o lex.yy.cc cool.flex" />
+                    <Add before="bash &quot;$(PROJECT_DIR)run_flex.sh&quot;" />
                 </ExtraCommands>
             </Target>
         </Build>
@@ -78,6 +78,11 @@
             <Option link="0" />
         </Unit>
         <Unit filename="utilities.h">
+            <Option compile="0" />
+            <Option link="0" />
+        </Unit>
+        <!-- Build helper script -->
+        <Unit filename="run_flex.sh">
             <Option compile="0" />
             <Option link="0" />
         </Unit>
