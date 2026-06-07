@@ -48,16 +48,49 @@
 			<Add option="-Wall" />
 			<Add option="-Wno-unused-function" />
 		</Compiler>
-		<Unit filename="cool-parse.h" />
-		<Unit filename="cool.flex" />
-		<Unit filename="lex.yy.cc" />
-		<Unit filename="main.cc" />
-		<Unit filename="run_flex.sh" />
-		<Unit filename="stringtab.cc" />
-		<Unit filename="stringtab.h" />
-		<Unit filename="test.cl" />
-		<Unit filename="utilities.cc" />
-		<Unit filename="utilities.h" />
+		<!-- All units are edit-only (compile=0, link=0).
+		     CodeBlocks must NOT compile them itself — run_flex.sh does flex+make+copy.
+		     Without these flags CB tries to create /main.o etc. at root (read-only). -->
+		<Unit filename="cool-parse.h">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="cool.flex">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="lex.yy.cc">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="main.cc">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="run_flex.sh">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="stringtab.cc">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="stringtab.h">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="test.cl">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="utilities.cc">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="utilities.h">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
