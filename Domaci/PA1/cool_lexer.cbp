@@ -1,91 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-    <FileVersion major="1" minor="6" />
-    <Project>
-        <Option title="cool_lexer" />
-        <Option pch_mode="2" />
-        <Option compiler="gcc" />
-        <Build>
-            <Target title="Debug">
-                <!--
-                    Output and working_dir use ~/PA1 symlink (no spaces in path).
-                    CodeBlocks on macOS uses osascript to open Terminal, which
-                    breaks when the path contains spaces — the symlink bypasses this.
-                -->
-                <Option output="/Users/stefanoknez/PA1/bin/Debug/cool_lexer" prefix_auto="1" extension_auto="1" />
-                <Option working_dir="/Users/stefanoknez/PA1" />
-                <Option parameters="/Users/stefanoknez/PA1_test.cl" />
-                <Option type="1" />
-                <Option compiler="gcc" />
-                <Option createDefines="0" />
-                <Compiler>
-                    <Add option="-std=c++11" />
-                    <Add option="-Wall" />
-                    <Add option="-Wno-unused-function" />
-                    <Add option="-g" />
-                </Compiler>
-                <ExtraCommands>
-                    <Add before="bash &quot;$(PROJECT_DIR)run_flex.sh&quot;" />
-                </ExtraCommands>
-            </Target>
-            <Target title="Release">
-                <Option output="/Users/stefanoknez/PA1/bin/Release/cool_lexer" prefix_auto="1" extension_auto="1" />
-                <Option working_dir="/Users/stefanoknez/PA1" />
-                <Option parameters="/Users/stefanoknez/PA1_test.cl" />
-                <Option type="1" />
-                <Option compiler="gcc" />
-                <Option createDefines="0" />
-                <Compiler>
-                    <Add option="-std=c++11" />
-                    <Add option="-O2" />
-                    <Add option="-Wno-unused-function" />
-                </Compiler>
-                <ExtraCommands>
-                    <Add before="bash &quot;$(PROJECT_DIR)run_flex.sh&quot;" />
-                </ExtraCommands>
-            </Target>
-        </Build>
-        <Compiler>
-            <Add option="-std=c++11" />
-            <Add option="-Wall" />
-            <Add option="-Wno-unused-function" />
-        </Compiler>
-        <Unit filename="cool.flex">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Unit filename="lex.yy.cc">
-            <Option compilerVar="CPP" />
-        </Unit>
-        <Unit filename="stringtab.cc">
-            <Option compilerVar="CPP" />
-        </Unit>
-        <Unit filename="utilities.cc">
-            <Option compilerVar="CPP" />
-        </Unit>
-        <Unit filename="main.cc">
-            <Option compilerVar="CPP" />
-        </Unit>
-        <Unit filename="cool-parse.h">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Unit filename="stringtab.h">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Unit filename="utilities.h">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Unit filename="run_flex.sh">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Unit filename="test.cl">
-            <Option compile="0" />
-            <Option link="0" />
-        </Unit>
-        <Extensions />
-    </Project>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cool_lexer" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<!-- type=4 : Commands only — CB never tries to link or auto-run the binary.
+				     All building is handled by run_flex.sh (before step).
+				     Opening the terminal is handled by PA1_open_terminal.sh (after step). -->
+				<Option output="bin/Debug/cool_lexer" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option type="4" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-function" />
+					<Add option="-g" />
+				</Compiler>
+				<ExtraCommands>
+					<!-- Before: flex -> make -> copy binary to bin/Debug/cool_lexer -->
+					<Add before='bash &quot;$(PROJECT_DIR)run_flex.sh&quot;' />
+					<!-- After: open a Terminal window that runs the lexer on test.cl -->
+					<Add after="bash /Users/stefanoknez/PA1_open_terminal.sh" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/cool_lexer" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option type="4" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-O2" />
+					<Add option="-Wno-unused-function" />
+				</Compiler>
+				<ExtraCommands>
+					<Add before='bash &quot;$(PROJECT_DIR)run_flex.sh&quot;' />
+					<Add after="bash /Users/stefanoknez/PA1_open_terminal.sh" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-Wno-unused-function" />
+		</Compiler>
+		<Unit filename="cool-parse.h" />
+		<Unit filename="cool.flex" />
+		<Unit filename="lex.yy.cc" />
+		<Unit filename="main.cc" />
+		<Unit filename="run_flex.sh" />
+		<Unit filename="stringtab.cc" />
+		<Unit filename="stringtab.h" />
+		<Unit filename="test.cl" />
+		<Unit filename="utilities.cc" />
+		<Unit filename="utilities.h" />
+		<Extensions />
+	</Project>
 </CodeBlocks_project_file>
