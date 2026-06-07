@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cool_semant" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<!-- type=4 : Commands only. run_build.sh does bison+flex+make+copy
+				     and opens a Terminal running the analyzer. (Same as PA1/PA2.) -->
+				<Option output="bin/Debug/semant" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option type="4" />
+				<Option compiler="gcc" />
+				<ExtraCommands>
+					<Add before='bash &quot;$(PROJECT_DIR)run_build.sh&quot;' />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+		</Compiler>
+		<!-- All units edit-only (compile=0, link=0); run_build.sh builds. -->
+		<Unit filename="semant.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="semant.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="semant-main.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool.y"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool.flex"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.handcode.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="cool-tree.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="symtab.h"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="dumptype.cc"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="good.cl"><Option compile="0" /><Option link="0" /></Unit>
+		<Unit filename="bad.cl"><Option compile="0" /><Option link="0" /></Unit>
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
