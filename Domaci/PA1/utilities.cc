@@ -69,7 +69,7 @@ void dump_cool_token(int token) {
             break;
 
         default:
-            /* Single-character tokens: print as 'c' */
+            /* Tokeni od jednog karaktera: ispiši kao 'c' */
             if (token >= 32 && token < 128)
                 printf("'%c'", token);
             else

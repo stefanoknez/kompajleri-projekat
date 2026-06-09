@@ -1,21 +1,21 @@
 #!/bin/bash
-# Single build+run driver, called by the CodeBlocks PRE-BUILD step.
-# Runs fully sequentially, so by the time the Terminal opens the binary is ready.
+# Jedna skripta koja i builduje i pokreće, zove je CodeBlocks PRE-BUILD korak.
+# Ide potpuno redom, pa kad se Terminal otvori binarni fajl je već spreman.
 cd "$(dirname "$0")"
 export PATH="/opt/homebrew/opt/flex/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
-# Step 1: generate the C++ scanner from the flex grammar
+# Korak 1: napravi C++ skener od flex gramatike
 /opt/homebrew/opt/flex/bin/flex -o lex.yy.cc cool.flex
 
-# Step 2: compile (override FLEX so make finds it without relying on GUI PATH)
+# Korak 2: iskompajliraj (zadajem FLEX da ga make nađe bez oslanjanja na GUI PATH)
 make FLEX=/opt/homebrew/opt/flex/bin/flex
 
-# Step 3: copy binary to the location CodeBlocks/PA1_run.sh expect
+# Korak 3: kopiraj binarni fajl tamo gdje ga CodeBlocks/PA1_run.sh očekuju
 mkdir -p bin/Debug
 cp lexer bin/Debug/cool_lexer
 
-# Step 4: open a Terminal window that runs the lexer on test.cl.
-# Plain 'do script' (NOT 'quoted form of') => no osascript quoting bug.
+# Korak 4: otvori Terminal prozor koji pokreće lexer na test.cl.
+# Obični 'do script' (NE 'quoted form of') => nema bug-a sa navodnicima u osascript-u.
 osascript \
   -e 'tell application "Terminal" to do script "/Users/stefanoknez/PA1_run.sh"' \
   -e 'tell application "Terminal" to activate'

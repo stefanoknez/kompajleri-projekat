@@ -1,8 +1,8 @@
-# Makefile for Cool Lexer (PA1)
-# Usage:
-#   make          — build the lexer binary
-#   make test     — run the lexer on test.cl
-#   make clean    — remove generated files
+# Makefile za Cool lekser (PA1)
+# Upotreba:
+#   make          — napravi lexer binarni fajl
+#   make test     — pokreni lexer na test.cl
+#   make clean    — obriši generisane fajlove
 
 CXX   = g++
 FLEX  = flex
@@ -10,17 +10,17 @@ FLEX  = flex
 CXXFLAGS = -std=c++11 -Wall -Wno-unused-function
 
 SRCS = stringtab.cc utilities.cc main.cc
-GEN  = lex.yy.cc          # flex output compiled as C++
+GEN  = lex.yy.cc          # izlaz flexa, kompajlira se kao C++
 
 .PHONY: all test clean
 
 all: lexer
 
-# Generate C++ source from the flex file
+# Napravi C++ izvorni kod od flex fajla
 $(GEN): cool.flex
 	$(FLEX) -o $(GEN) cool.flex
 
-# Compile everything with g++
+# Iskompajliraj sve sa g++
 lexer: $(GEN) $(SRCS)
 	$(CXX) $(CXXFLAGS) -o lexer $(GEN) $(SRCS)
 

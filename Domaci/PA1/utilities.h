@@ -3,7 +3,7 @@
 
 #include "cool-parse.h"
 
-/* Print one token to stdout in the format:  #<line> TOKEN_NAME [lexeme] */
+/* Ispisuje jedan token na stdout u formatu:  #<linija> IME_TOKENA [leksema] */
 void dump_cool_token(int token);
 
 #endif /* UTILITIES_H */

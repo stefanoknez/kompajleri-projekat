@@ -1,12 +1,13 @@
 /*
- * cool.flex  —  Lexical analyzer for the Cool programming language.
+ * cool.flex  —  Leksički analizator za programski jezik Cool.
  *
- * Cool lexer rules (PA1, CS 143 Compilers):
- *   - Case-insensitive keywords (except true/false which must start lowercase)
- *   - Nested block comments  (* ... (* ... *) ... *)
- *   - Line comments  -- ...
- *   - String constants with escape sequences and 1024-char limit
- *   - All error conditions forwarded as ERROR tokens
+ * Pravila Cool leksera (PA1, CS 143 Compilers):
+ *   - Ključne riječi neosjetljive na velika/mala slova (osim true/false koje
+ *     moraju počinjati malim slovom)
+ *   - Ugniježđeni blok komentari  (* ... (* ... *) ... *)
+ *   - Linijski komentari  -- ...
+ *   - String konstante sa escape sekvencama i ograničenjem od 1024 karaktera
+ *   - Sve greške se prosljeđuju kao ERROR tokeni
  */
 
 %{
@@ -20,19 +21,19 @@
 extern int curr_lineno;
 extern YYSTYPE cool_yylval;
 
-/* Maximum length of a string constant (excluding null terminator) */
+/* Maksimalna dužina string konstante (bez završne nule) */
 #define MAX_STR_CONST 1025
 
-static char string_buf[MAX_STR_CONST];  /* working buffer for string constants */
-static char *string_buf_ptr;            /* write pointer into string_buf */
-static int string_has_error;            /* nonzero if a string error was already found */
-static const char *string_error_msg;    /* the first error message in the string */
+static char string_buf[MAX_STR_CONST];  /* radni bafer za string konstante */
+static char *string_buf_ptr;            /* pokazivač gdje upisujemo u string_buf */
+static int string_has_error;            /* različito od nule ako je već nađena greška u stringu */
+static const char *string_error_msg;    /* prva greška u stringu */
 
-static int comment_depth;              /* nesting depth of (* *) block comments */
+static int comment_depth;              /* dubina ugnježđavanja (* *) blok komentara */
 
-static char error_char[2];             /* buffer for single-char error messages */
+static char error_char[2];             /* bafer za poruke o grešci od jednog karaktera */
 
-/* Add a character to the string buffer; set too-long error if needed. */
+/* Dodaj karakter u string bafer; postavi grešku "predugačak" ako treba. */
 #define STR_ADD(c) \
     do { \
         if (!string_has_error) { \
@@ -49,15 +50,16 @@ static char error_char[2];             /* buffer for single-char error messages 
 
 %option noyywrap
 
-/* Exclusive start conditions */
+/* Ekskluzivni start uslovi */
 %x COMMENT
 %x LINE_COMMENT
 %x STRING
 
 /* ──────────────────────────────────────────────────────────────────
-   Keyword definitions (case-insensitive via character classes)
-   Placed in definitions so they can be referenced as {NAME_K}.
-   Flex's longest-match rule ensures e.g. "inherits" beats "in".
+   Definicije ključnih riječi (neosjetljive na velika/mala slova preko klasa
+   karaktera). Stavljene su u definicije da bi mogle da se koriste kao {IME}.
+   Flex-ovo pravilo najdužeg poklapanja garantuje da npr. "inherits" pobijedi
+   "in".
    ────────────────────────────────────────────────────────────────── */
 CLASS_K     [cC][lL][aA][sS][sS]
 ELSE_K      [eE][lL][sS][eE]
@@ -77,7 +79,7 @@ NEW_K       [nN][eE][wW]
 OF_K        [oO][fF]
 NOT_K       [nN][oO][tT]
 
-/* Boolean literals must start with lowercase t/f; rest is case-insensitive */
+/* Boolean literali moraju počinjati malim t/f; ostatak je svejedno */
 TRUE_K      t[rR][uU][eE]
 FALSE_K     f[aA][lL][sS][eE]
 
@@ -88,23 +90,23 @@ ALNUM       [a-zA-Z0-9_]
 %%
 
  /* ════════════════════════════════════════════════════════════════
-    Whitespace  —  newlines update line counter, rest is skipped
+    Praznine  —  novi red povećava brojač linija, ostalo se preskače
     ════════════════════════════════════════════════════════════════ */
 \n                  { curr_lineno++; }
-[ \t\r\f\v]+        { /* ignore horizontal/vertical whitespace */ }
+[ \t\r\f\v]+        { /* ignoriši horizontalne/vertikalne praznine */ }
 
 
  /* ════════════════════════════════════════════════════════════════
-    Line comments:  -- ... <newline>
+    Linijski komentari:  -- ... <novi red>
     ════════════════════════════════════════════════════════════════ */
 "--"                        { BEGIN(LINE_COMMENT); }
 <LINE_COMMENT>\n            { curr_lineno++; BEGIN(INITIAL); }
-<LINE_COMMENT>.             { /* consume rest of line */ }
+<LINE_COMMENT>.             { /* pojedi ostatak linije */ }
 <LINE_COMMENT><<EOF>>       { BEGIN(INITIAL); }
 
 
  /* ════════════════════════════════════════════════════════════════
-    Block comments:  (* ... *)  — support arbitrary nesting
+    Blok komentari:  (* ... *)  — podržano proizvoljno ugnježđavanje
     ════════════════════════════════════════════════════════════════ */
 "(*"                {
     BEGIN(COMMENT);
@@ -116,14 +118,14 @@ ALNUM       [a-zA-Z0-9_]
         BEGIN(INITIAL);
 }
 <COMMENT>\n         { curr_lineno++; }
-<COMMENT>.          { /* consume comment content */ }
+<COMMENT>.          { /* pojedi sadržaj komentara */ }
 <COMMENT><<EOF>>    {
     cool_yylval.error_msg = (char*)"EOF in comment";
     BEGIN(INITIAL);
     return ERROR;
 }
 
- /* Unmatched *) outside any comment */
+ /* Nesparen *) van bilo kakvog komentara */
 "*)"    {
     cool_yylval.error_msg = (char*)"Unmatched *)";
     return ERROR;
@@ -131,10 +133,10 @@ ALNUM       [a-zA-Z0-9_]
 
 
  /* ════════════════════════════════════════════════════════════════
-    String constants
-    Escape sequences:  \n \t \b \f \\ \"  and  \<any> → <any>
-    Special:  \0 (two chars) → '0' (ASCII 48);  literal NUL → error
-    Max length: 1024 characters (excluding null terminator)
+    String konstante
+    Escape sekvence:  \n \t \b \f \\ \"  i  \<bilo šta> → <bilo šta>
+    Specijalno:  \0 (dva karaktera) → '0' (ASCII 48);  pravi NUL → greška
+    Max dužina: 1024 karaktera (bez završne nule)
     ════════════════════════════════════════════════════════════════ */
 \"  {
     BEGIN(STRING);
@@ -144,7 +146,7 @@ ALNUM       [a-zA-Z0-9_]
 }
 
 <STRING>\"  {
-    /* Closing quote — emit STR_CONST or propagate first error */
+    /* Zatvoreni navodnik — vrati STR_CONST ili proslijedi prvu grešku */
     BEGIN(INITIAL);
     if (string_has_error) {
         cool_yylval.error_msg = (char*)string_error_msg;
@@ -156,7 +158,7 @@ ALNUM       [a-zA-Z0-9_]
 }
 
 <STRING>\n  {
-    /* Unescaped newline terminates the string immediately */
+    /* Neeskejpovan novi red odmah prekida string */
     curr_lineno++;
     BEGIN(INITIAL);
     cool_yylval.error_msg = (char*)"Unterminated string constant";
@@ -169,10 +171,10 @@ ALNUM       [a-zA-Z0-9_]
     return ERROR;
 }
 
- /* Escaped newline  \<LF>  →  actual newline character in string */
+ /* Eskejpovan novi red  \<LF>  →  pravi novi red u stringu */
 <STRING>\\\n        { curr_lineno++; STR_ADD('\n'); }
 
- /* Named escape sequences */
+ /* Imenovane escape sekvence */
 <STRING>\\n         { STR_ADD('\n'); }
 <STRING>\\t         { STR_ADD('\t'); }
 <STRING>\\b         { STR_ADD('\b'); }
@@ -180,10 +182,10 @@ ALNUM       [a-zA-Z0-9_]
 <STRING>\\\\        { STR_ADD('\\'); }
 <STRING>\\\"        { STR_ADD('"');  }
 
- /* Any other escaped character  \<c>  →  c  (includes \0 → '0') */
+ /* Bilo koji drugi eskejpovan karakter  \<c>  →  c  (uključuje \0 → '0') */
 <STRING>\\.         { STR_ADD(yytext[1]); }
 
- /* Literal NUL byte inside string */
+ /* Pravi NUL bajt unutar stringa */
 <STRING>\0          {
     if (!string_has_error) {
         string_has_error = 1;
@@ -191,13 +193,13 @@ ALNUM       [a-zA-Z0-9_]
     }
 }
 
- /* Ordinary characters */
+ /* Obični karakteri */
 <STRING>.           { STR_ADD(yytext[0]); }
 
 
  /* ════════════════════════════════════════════════════════════════
-    Keywords  (longest-match guarantees e.g. "inherits" beats "in")
-    Must come BEFORE the identifier rules.
+    Ključne riječi  (najduže poklapanje garantuje da npr. "inherits" pobijedi "in")
+    Moraju doći PRIJE pravila za identifikatore.
     ════════════════════════════════════════════════════════════════ */
 {INHERITS_K}        { return INHERITS; }
 {ISVOID_K}          { return ISVOID;   }
@@ -217,15 +219,15 @@ ALNUM       [a-zA-Z0-9_]
 {FI_K}              { return FI;       }
 {OF_K}              { return OF;       }
 
- /* Boolean literals (must start with lowercase t / f) */
+ /* Boolean literali (moraju počinjati malim t / f) */
 {TRUE_K}    { cool_yylval.boolean = 1; return BOOL_CONST; }
 {FALSE_K}   { cool_yylval.boolean = 0; return BOOL_CONST; }
 
 
  /* ════════════════════════════════════════════════════════════════
-    Identifiers
-    TYPEID  : starts with uppercase letter
-    OBJECTID: starts with lowercase letter or underscore
+    Identifikatori
+    TYPEID  : počinje velikim slovom
+    OBJECTID: počinje malim slovom ili donjom crtom
     ════════════════════════════════════════════════════════════════ */
 [A-Z]{ALNUM}*   {
     cool_yylval.symbol = idtable.add_string(yytext);
@@ -239,7 +241,7 @@ ALNUM       [a-zA-Z0-9_]
 
 
  /* ════════════════════════════════════════════════════════════════
-    Integer constants
+    Cjelobrojne konstante
     ════════════════════════════════════════════════════════════════ */
 {DIGIT}+    {
     cool_yylval.symbol = inttable.add_string(yytext);
@@ -248,7 +250,7 @@ ALNUM       [a-zA-Z0-9_]
 
 
  /* ════════════════════════════════════════════════════════════════
-    Multi-character operators  (must appear before single-char rules)
+    Operatori od više karaktera  (moraju doći prije pravila od jednog karaktera)
     ════════════════════════════════════════════════════════════════ */
 "<-"    { return ASSIGN; }
 "=>"    { return DARROW; }
@@ -256,13 +258,13 @@ ALNUM       [a-zA-Z0-9_]
 
 
  /* ════════════════════════════════════════════════════════════════
-    Single-character tokens  (operators and punctuation)
+    Tokeni od jednog karaktera  (operatori i interpunkcija)
     ════════════════════════════════════════════════════════════════ */
 [+\-*/<=~@.;:,(){}]    { return yytext[0]; }
 
 
  /* ════════════════════════════════════════════════════════════════
-    Invalid / unrecognised character  →  ERROR
+    Nevažeći / neprepoznat karakter  →  ERROR
     ════════════════════════════════════════════════════════════════ */
 .   {
     error_char[0] = yytext[0];

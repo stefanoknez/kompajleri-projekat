@@ -5,7 +5,7 @@
 extern int yylex();
 extern FILE* yyin;
 
-/* Defined here, declared extern in cool-parse.h */
+/* Ovdje ih definišemo, a u cool-parse.h su deklarisani kao extern */
 YYSTYPE cool_yylval;
 int curr_lineno = 1;
 

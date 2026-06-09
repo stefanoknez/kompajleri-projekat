@@ -3,7 +3,7 @@
 
 #include "stringtab.h"
 
-/* Token codes for Cool keywords and special tokens */
+/* Kodovi tokena za Cool ključne riječi i specijalne tokene */
 #define CLASS      258
 #define ELSE       259
 #define FI         260
@@ -30,14 +30,14 @@
 #define TYPEID     281
 #define OBJECTID   282
 #define ERROR      283
-#define LET_STMT   284   /* used only by parser, ignore in lexer */
+#define LET_STMT   284   /* koristi ga samo parser, lekser ga ignoriše */
 
 typedef int Boolean;
 
 typedef union {
-    Symbol   symbol;     /* for INT_CONST, STR_CONST, TYPEID, OBJECTID */
-    Boolean  boolean;    /* for BOOL_CONST */
-    char    *error_msg;  /* for ERROR */
+    Symbol   symbol;     /* za INT_CONST, STR_CONST, TYPEID, OBJECTID */
+    Boolean  boolean;    /* za BOOL_CONST */
+    char    *error_msg;  /* za ERROR */
 } YYSTYPE;
 
 extern YYSTYPE cool_yylval;
