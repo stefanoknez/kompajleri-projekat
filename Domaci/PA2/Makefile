@@ -1,11 +1,11 @@
-# Makefile for the Cool parser (PA2)
-# Usage:
-#   make          — build the `parser` binary
-#   make test     — build, then parse good.cl
-#   make clean    — remove generated files
+# Makefile za Cool parser (PA2)
+# Upotreba:
+#   make          — napravi `parser` binarni fajl
+#   make test     — napravi, pa parsiraj good.cl
+#   make clean    — obriši generisane fajlove
 #
-# Self-contained: the flex scanner feeds the bison parser directly, so no
-# reference binaries or pipes are needed (works on macOS / Apple Silicon).
+# Samostalno: flex skener direktno hrani bison parser, pa nisu potrebni
+# referentni binarni fajlovi ni pipe-ovi (radi na macOS / Apple Silicon).
 
 CXX   = g++
 FLEX  = flex
@@ -15,10 +15,10 @@ CPPINCLUDE = -I.
 CXXFLAGS   = -std=c++11 -g -Wall -Wno-unused -Wno-write-strings -Wno-deprecated $(CPPINCLUDE)
 BISONFLAGS = -d --defines=cool-parse.h -o cool-parse.cc -v
 
-# Hand-written / provided support sources (NOT generated)
+# Ručno pisani / dati support fajlovi (NISU generisani)
 SUPPORT = tree.cc cool-tree.cc stringtab.cc utilities.cc dumptype.cc parser-main.cc
 
-# Generated sources
+# Generisani fajlovi
 GEN = cool-parse.cc lex.yy.cc
 
 OBJS = $(GEN:.cc=.o) $(SUPPORT:.cc=.o)
@@ -27,15 +27,15 @@ OBJS = $(GEN:.cc=.o) $(SUPPORT:.cc=.o)
 
 all: parser
 
-# 1) bison: grammar -> C++ parser + header
+# 1) bison: gramatika -> C++ parser + header
 cool-parse.cc cool-parse.h: cool.y
 	$(BISON) $(BISONFLAGS) cool.y
 
-# 2) flex: scanner -> C++ lexer (needs the bison header for token codes)
+# 2) flex: skener -> C++ lekser (treba mu bison header zbog kodova tokena)
 lex.yy.cc: cool.flex cool-parse.h
 	$(FLEX) -o lex.yy.cc cool.flex
 
-# 3) compile & link everything into one standalone parser
+# 3) iskompajliraj i poveži sve u jedan samostalni parser
 parser: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o parser $(OBJS)
 

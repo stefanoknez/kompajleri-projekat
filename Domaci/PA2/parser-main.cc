@@ -1,14 +1,14 @@
 //
 // parser-main.cc
 //
-// Self-contained driver for the Cool parser (PA2).
+// Samostalni driver za Cool parser (PA2).
 //
-// Unlike Stanford's piped setup (lexer | parser), this driver runs the flex
-// scanner directly on a .cl source file, parses it with the bison parser, and
-// prints the resulting abstract syntax tree.  This makes the parser a single
-// standalone executable that works in CodeBlocks / VS Code on macOS.
+// Za razliku od Stanfordovog pipe setapa (lexer | parser), ovaj driver pokreće
+// flex skener direktno na .cl fajlu, parsira ga bison parserom i ispisuje
+// dobijeno apstraktno sintaksno stablo. Tako je parser jedan samostalni
+// izvršni fajl koji radi u CodeBlocks / VS Code na macOS-u.
 //
-//   usage:  parser  <file.cl>
+//   upotreba:  parser  <fajl.cl>
 //
 
 #include <cstdio>
@@ -17,16 +17,16 @@
 #include "cool-tree.h"
 #include "utilities.h"
 
-// ---- globals shared with the lexer and the generated parser ---------------
+// ---- globalne promjenljive zajedničke za lekser i generisani parser -------
 
-extern FILE *yyin;            // flex reads from this
-extern int   yyparse();       // bison entry point
+extern FILE *yyin;            // flex čita odavde
+extern int   yyparse();       // ulazna tačka bisona
 
-int   curr_lineno = 1;        // current source line (maintained by the lexer)
-char *curr_filename = (char *) "<stdin>";   // file being parsed
+int   curr_lineno = 1;        // trenutna linija u izvoru (održava je lekser)
+char *curr_filename = (char *) "<stdin>";   // fajl koji se parsira
 
-extern int     omerrs;        // lex + parse error count (defined in cool.y)
-extern Program ast_root;      // AST root produced by the parse (defined in cool.y)
+extern int     omerrs;        // broj leksičkih + sintaksnih grešaka (definisan u cool.y)
+extern Program ast_root;      // korijen AST-a dobijen parsiranjem (definisan u cool.y)
 
 int main(int argc, char *argv[])
 {

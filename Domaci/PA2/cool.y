@@ -1,10 +1,10 @@
 /*
  *  cool.y
- *  Bison grammar / parser definition for the Cool language (PA2).
+ *  Bison gramatika / definicija parsera za jezik Cool (PA2).
  *
- *  Semantic actions build an abstract syntax tree (AST) using the tree
- *  package constructors declared in cool-tree.h.  The single root of the
- *  tree is `ast_root` (a Program), printed by the driver via dump_with_types.
+ *  Semantičke akcije grade apstraktno sintaksno stablo (AST) preko konstruktora
+ *  iz tree paketa deklarisanih u cool-tree.h. Jedini korijen stabla je
+ *  `ast_root` (Program), koji driver ispisuje preko dump_with_types.
  */
 
 %{
@@ -14,16 +14,16 @@
   #include "utilities.h"
 
   extern char *curr_filename;
-  extern int   curr_lineno;     /* maintained by the lexer  */
-  extern int   node_lineno;     /* line number stamped on the next tree node */
+  extern int   curr_lineno;     /* održava ga lekser  */
+  extern int   node_lineno;     /* broj linije koji se upisuje sljedećem čvoru stabla */
 
-  void yyerror(const char *s);  /* called by bison on a parse error */
-  extern int yylex();           /* the lexer entry point           */
+  void yyerror(const char *s);  /* bison je zove kad naiđe na grešku u parsiranju */
+  extern int yylex();           /* ulazna tačka leksera           */
 
-  /* The locations produced by the lexer are plain line numbers (ints).
-     On every reduction, stamp the construct's line number onto node_lineno
-     so that the tree constructors record a sensible line.  We use the line
-     of the first symbol on the right-hand side. */
+  /* Lokacije koje lekser pravi su obični brojevi linija (int-ovi).
+     Na svakoj redukciji upišemo broj linije konstrukcije u node_lineno
+     da bi konstruktori stabla zapamtili razuman broj linije. Uzimamo liniju
+     prvog simbola sa desne strane. */
   #define YYLLOC_DEFAULT(Current, Rhs, N)        \
       do {                                       \
           (Current) = (N) ? (Rhs)[1] : (Rhs)[0]; \
@@ -33,25 +33,25 @@
   #define SET_NODELOC(Current)  (node_lineno = (Current))
 
   /************************************************************************/
-  /*                DON'T CHANGE ANYTHING IN THIS SECTION                */
-  Program ast_root;             /* the result of the parse  */
-  Classes parse_results;        /* for use in semantic analysis */
-  int omerrs = 0;               /* number of errors in lexing and parsing */
+  /*                NE MIJENJAJ NIŠTA U OVOJ SEKCIJI                     */
+  Program ast_root;             /* rezultat parsiranja  */
+  Classes parse_results;        /* koristi se u semantičkoj analizi */
+  int omerrs = 0;               /* broj grešaka u leksičkoj i sintaksnoj analizi */
 %}
 
-/* These includes must appear in the generated HEADER (cool-parse.h) too, so
-   that the %union's tree types are declared wherever the header is included
-   (e.g. by the lexer and by utilities.cc). */
+/* Ovi include-ovi moraju da se nađu i u generisanom HEADER-u (cool-parse.h),
+   da bi tree tipovi iz %union bili deklarisani gdje god se header uključuje
+   (npr. u lekseru i u utilities.cc). */
 %code requires {
   #include "cool-tree.h"
   #include "stringtab.h"
 }
 
-/* Locations are plain line numbers. */
+/* Lokacije su obični brojevi linija. */
 %define api.location.type {int}
 %locations
 
-/* A union of all the types that can be the result of parsing actions. */
+/* Unija svih tipova koji mogu biti rezultat akcija pri parsiranju. */
 %union {
   Boolean boolean;
   Symbol symbol;
@@ -70,8 +70,8 @@
 }
 
 /*
-   Terminals.  The explicit numeric codes keep the parser and the lexer
-   (which includes the generated cool-parse.h) in agreement and stable.
+   Terminali. Eksplicitni brojčani kodovi drže parser i lekser
+   (koji uključuje generisani cool-parse.h) usklađene i stabilne.
 */
 %token CLASS 258 ELSE 259 FI 260 IF 261 IN 262
 %token INHERITS 263 LET 264 LOOP 265 POOL 266 THEN 267 WHILE 268
@@ -81,7 +81,7 @@
 %token <symbol>  TYPEID 278 OBJECTID 279
 %token ASSIGN 280 NOT 281 LE 282 ERROR 283
 
-/* Types for the non-terminals. */
+/* Tipovi za neterminale. */
 %type <program>     program
 %type <classes>     class_list
 %type <class_>      class
@@ -98,7 +98,7 @@
 %type <expression>  let_tail
 %type <expression>  opt_init
 
-/* Precedence, lowest to highest (Cool Reference Manual section 11). */
+/* Prioriteti, od najnižeg ka najvišem (Cool Reference Manual, sekcija 11). */
 %nonassoc LET_PREC
 %right ASSIGN
 %right NOT
@@ -112,7 +112,7 @@
 
 %%
 
-/* ---- Program & classes -------------------------------------------- */
+/* ---- Program i klase ---------------------------------------------- */
 
 program
     : class_list
@@ -126,7 +126,7 @@ class_list
         { $$ = append_Classes($1, single_Classes($2)); parse_results = $$; }
     ;
 
-/* A class with no explicit parent inherits from Object. */
+/* Klasa bez eksplicitnog roditelja nasljeđuje od Object. */
 class
     : CLASS TYPEID '{' feature_list '}' ';'
         { $$ = class_($2, idtable.add_string("Object"), $4,
@@ -137,11 +137,11 @@ class
         { $$ = NULL; yyerrok; }
     ;
 
-/* ---- Features ------------------------------------------------------ */
+/* ---- Atributi i metode (features) --------------------------------- */
 
-/* Possibly empty list of features, each terminated by ';'. */
+/* Lista feature-a koja može biti i prazna, svaki se završava sa ';'. */
 feature_list
-    : /* empty */
+    : /* prazno */
         { $$ = nil_Features(); }
     | feature_list feature
         { $$ = append_Features($1, single_Features($2)); }
@@ -156,11 +156,11 @@ feature
         { $$ = NULL; yyerrok; }
     ;
 
-/* ---- Formal parameters -------------------------------------------- */
+/* ---- Formalni parametri ------------------------------------------- */
 
-/* Possibly empty, comma-separated list of formals. */
+/* Lista formalnih parametara odvojenih zarezom, može biti i prazna. */
 formal_list
-    : /* empty */
+    : /* prazno */
         { $$ = nil_Formals(); }
     | formal
         { $$ = single_Formals($1); }
@@ -173,11 +173,11 @@ formal
         { $$ = formal($1, $3); }
     ;
 
-/* ---- Dispatch argument lists -------------------------------------- */
+/* ---- Liste argumenata kod poziva (dispatch) ----------------------- */
 
-/* Possibly empty, comma-separated list of expressions. */
+/* Lista izraza odvojenih zarezom, može biti i prazna. */
 actuals
-    : /* empty */
+    : /* prazno */
         { $$ = nil_Expressions(); }
     | actual_list
         { $$ = $1; }
@@ -190,9 +190,9 @@ actual_list
         { $$ = append_Expressions($1, single_Expressions($3)); }
     ;
 
-/* ---- Block expression body ---------------------------------------- */
+/* ---- Tijelo blok izraza ------------------------------------------- */
 
-/* One-or-more expressions, each terminated by ';'. */
+/* Jedan ili više izraza, svaki se završava sa ';'. */
 block_list
     : expression ';'
         { $$ = single_Expressions($1); }
@@ -202,7 +202,7 @@ block_list
         { $$ = nil_Expressions(); yyerrok; }
     ;
 
-/* ---- Case branches ------------------------------------------------- */
+/* ---- Grane case izraza -------------------------------------------- */
 
 case_list
     : case_branch
@@ -216,21 +216,21 @@ case_branch
         { $$ = branch($1, $3, $5); }
     ;
 
-/* ---- let helpers --------------------------------------------------- */
+/* ---- pomoćna pravila za let --------------------------------------- */
 
-/* Optional initializer:  <- expr  | nothing */
+/* Opciona inicijalizacija:  <- izraz  | ništa */
 opt_init
-    : /* empty */
+    : /* prazno */
         { $$ = no_expr(); }
     | ASSIGN expression
         { $$ = $2; }
     ;
 
 /*
-   A let has one or more bindings.  We model the binding chain with a
-   right-recursive helper so that a let extends as far to the right as
-   possible (LET_PREC is the lowest precedence, so the parser prefers to
-   keep shifting into the body rather than ending the let early).
+   let ima jedno ili više vezivanja. Lanac vezivanja modelujemo desno-rekurzivnim
+   pomoćnim pravilom da bi se let protezao što više udesno (LET_PREC je najniži
+   prioritet, pa parser radije nastavlja da uvlači u tijelo nego da prerano
+   završi let).
 */
 let_tail
     : OBJECTID ':' TYPEID opt_init IN expression          %prec LET_PREC
@@ -243,7 +243,7 @@ let_tail
         { $$ = $3; yyerrok; }
     ;
 
-/* ---- Expressions -------------------------------------------------- */
+/* ---- Izrazi ------------------------------------------------------- */
 
 expression
     : OBJECTID ASSIGN expression
@@ -300,7 +300,7 @@ expression
 
 %%
 
-/* This function is called automatically when bison detects a parse error. */
+/* Ovu funkciju bison automatski zove kad otkrije grešku u parsiranju. */
 void yyerror(const char *s)
 {
     extern int yychar;
