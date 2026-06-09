@@ -1,21 +1,21 @@
 /*
- * cool.flex  —  Lexical analyzer for the Cool programming language (PA2 build).
+ * cool.flex  —  Leksički analizator za jezik Cool (verzija za PA2).
  *
- * This is the same scanner written for PA1, re-wired to feed the bison parser
- * directly (it sets the bison `yylval` union and reports each token's line
- * number through `yylloc`, which the grammar copies into `node_lineno`).
+ * Ovo je isti skener kao za PA1, samo prepravljen da direktno hrani bison parser
+ * (postavlja bison `yylval` uniju i prijavljuje broj linije svakog tokena kroz
+ * `yylloc`, koji gramatika prepisuje u `node_lineno`).
  */
 
 %{
 #include "cool-tree.h"
-#include "cool-parse.h"   /* token codes + YYSTYPE + extern yylval/yylloc */
+#include "cool-parse.h"   /* kodovi tokena + YYSTYPE + extern yylval/yylloc */
 #include "stringtab.h"
 #include "utilities.h"
 #include <string.h>
 
-/* cool-tree.handcode.h does `#define yylineno curr_lineno;` (with a stray
-   semicolon) for the parser's benefit; that macro corrupts flex's own
-   generated `yylineno` references, so drop it inside the scanner. */
+/* cool-tree.handcode.h radi `#define yylineno curr_lineno;` (sa viškom tačke-zareza)
+   zbog parsera; taj makro kvari flex-ove sopstvene generisane `yylineno`
+   reference, pa ga unutar skenera poništavamo. */
 #undef yylineno
 
 #define YY_NO_UNPUT
@@ -23,23 +23,23 @@
 
 extern int curr_lineno;
 
-/* Before running any rule's action, record the line on which the matched
-   text begins. The grammar reads this through @n / YYLLOC_DEFAULT. */
+/* Prije izvršavanja akcije bilo kog pravila, zapamti liniju na kojoj poklopljeni
+   tekst počinje. Gramatika to čita kroz @n / YYLLOC_DEFAULT. */
 #define YY_USER_ACTION  yylloc = curr_lineno;
 
-/* Maximum length of a string constant (excluding null terminator) */
+/* Maksimalna dužina string konstante (bez završne nule) */
 #define MAX_STR_CONST 1025
 
-static char string_buf[MAX_STR_CONST];  /* working buffer for string constants */
-static char *string_buf_ptr;            /* write pointer into string_buf */
-static int string_has_error;            /* nonzero if a string error was already found */
-static const char *string_error_msg;    /* the first error message in the string */
+static char string_buf[MAX_STR_CONST];  /* radni bafer za string konstante */
+static char *string_buf_ptr;            /* pokazivač gdje upisujemo u string_buf */
+static int string_has_error;            /* različito od nule ako je već nađena greška u stringu */
+static const char *string_error_msg;    /* prva greška u stringu */
 
-static int comment_depth;               /* nesting depth of (* *) block comments */
+static int comment_depth;               /* dubina ugnježđavanja (* *) blok komentara */
 
-static char error_char[2];              /* buffer for single-char error messages */
+static char error_char[2];              /* bafer za poruke o grešci od jednog karaktera */
 
-/* Add a character to the string buffer; set too-long error if needed. */
+/* Dodaj karakter u string bafer; postavi grešku "predugačak" ako treba. */
 #define STR_ADD(c) \
     do { \
         if (!string_has_error) { \
@@ -56,7 +56,7 @@ static char error_char[2];              /* buffer for single-char error messages
 
 %option noyywrap
 
-/* Exclusive start conditions */
+/* Ekskluzivni start uslovi */
 %x COMMENT
 %x LINE_COMMENT
 %x STRING
@@ -89,11 +89,11 @@ ALNUM       [a-zA-Z0-9_]
 %%
 
 \n                  { curr_lineno++; }
-[ \t\r\f\v]+        { /* ignore horizontal/vertical whitespace */ }
+[ \t\r\f\v]+        { /* ignoriši horizontalne/vertikalne praznine */ }
 
 "--"                        { BEGIN(LINE_COMMENT); }
 <LINE_COMMENT>\n            { curr_lineno++; BEGIN(INITIAL); }
-<LINE_COMMENT>.             { /* consume rest of line */ }
+<LINE_COMMENT>.             { /* pojedi ostatak linije */ }
 <LINE_COMMENT><<EOF>>       { BEGIN(INITIAL); }
 
 "(*"                {
@@ -106,7 +106,7 @@ ALNUM       [a-zA-Z0-9_]
         BEGIN(INITIAL);
 }
 <COMMENT>\n         { curr_lineno++; }
-<COMMENT>.          { /* consume comment content */ }
+<COMMENT>.          { /* pojedi sadržaj komentara */ }
 <COMMENT><<EOF>>    {
     yylval.error_msg = (char*)"EOF in comment";
     BEGIN(INITIAL);

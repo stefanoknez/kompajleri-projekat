@@ -2,12 +2,12 @@
 #define SEMANT_H_
 
 //
-// semant.h — declarations for the Cool semantic analyzer (PA3).
+// semant.h — deklaracije za Cool semantički analizator (PA3).
 //
-// The analysis itself is driven by program_class::semant() (implemented in
-// semant.cc).  All the heavy machinery — the inheritance graph, the object
-// (variable) environment and the method table — is kept file-local in
-// semant.cc, so this header only needs to pull in the shared support code.
+// Samu analizu vodi program_class::semant() (implementirana u semant.cc).
+// Sva teška mašinerija — graf nasljeđivanja, okruženje objekata (promjenljivih)
+// i tabela metoda — je lokalna za fajl semant.cc, pa ovaj header treba samo da
+// povuče zajednički support kod.
 //
 
 #include <assert.h>

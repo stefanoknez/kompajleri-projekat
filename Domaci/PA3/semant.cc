@@ -1,17 +1,17 @@
 //
-// semant.cc — the Cool semantic analyzer (PA3).
+// semant.cc — semantički analizator za Cool (PA3).
 //
-// Responsibilities (Cool Reference Manual + CS143 handout):
-//   1. Build the inheritance graph of all classes (user + basic).
-//   2. Check the graph is well formed: no redefinitions, parents exist,
-//      no inheriting from Int/Bool/String/SELF_TYPE, no cycles, a Main
-//      class with a main() method.
-//   3. For each class, build the object (variable) environment and the
-//      method table, then type-check every expression against the Cool
-//      typing rules, annotating each AST node with its type.
+// Zaduženja (Cool Reference Manual + CS143 handout):
+//   1. Izgradi graf nasljeđivanja svih klasa (korisničke + osnovne).
+//   2. Provjeri da je graf dobro formiran: nema redefinicija, roditelji postoje,
+//      ne nasljeđuje se Int/Bool/String/SELF_TYPE, nema ciklusa, postoji klasa
+//      Main sa metodom main().
+//   3. Za svaku klasu izgradi okruženje objekata (promjenljivih) i tabelu
+//      metoda, pa provjeri tip svakog izraza po Cool pravilima tipova i upiši
+//      svakom AST čvoru njegov tip.
 //
-// If any error is found the analyzer reports it and (after a check phase)
-// halts compilation, exactly as the reference compiler does.
+// Ako se nađe greška, analizator je prijavi i (poslije faze provjere) zaustavi
+// kompilaciju, isto kao referentni kompajler.
 //
 
 #include <stdlib.h>
@@ -23,28 +23,28 @@
 extern char *curr_filename;
 
 //////////////////////////////////////////////////////////////////////
-//  Analyzer state (file-local)
+//  Stanje analizatora (lokalno za fajl)
 //////////////////////////////////////////////////////////////////////
 
 static ostream &error_stream = cerr;
 static int      semant_errors = 0;
-static Class_   curr_class = 0;       // class currently being analyzed
+static Class_   curr_class = 0;       // klasa koja se trenutno analizira
 
-// The inheritance graph: class name -> Class_ node.
+// Graf nasljeđivanja: ime klase -> Class_ čvor.
 typedef std::map<Symbol, Class_> ClassTableMap;
 static ClassTableMap classTable;
 
-// The object environment: variable name -> its declared type.
+// Okruženje objekata: ime promjenljive -> njen deklarisani tip.
 typedef SymbolTable<Symbol, Symbol> ObjectEnvironment;
 static ObjectEnvironment objectEnv;
 
-// The method table: class -> list of its (own) methods.
+// Tabela metoda: klasa -> lista njenih (sopstvenih) metoda.
 typedef std::vector<method_class *> Methods;
 typedef std::map<Class_, Methods> MethodTableMap;
 static MethodTableMap methodTable;
 
 //////////////////////////////////////////////////////////////////////
-//  Error reporting
+//  Prijavljivanje grešaka
 //////////////////////////////////////////////////////////////////////
 
 static ostream &semant_error() {
@@ -52,7 +52,7 @@ static ostream &semant_error() {
     return error_stream;
 }
 
-// Report an error located at tree node t, in the current class's file.
+// Prijavi grešku na čvoru stabla t, u fajlu trenutne klase.
 static ostream &semant_error(tree_node *t) {
     error_stream << curr_class->getFileName() << ":" << t->get_line_number() << ": ";
     return semant_error();
@@ -64,9 +64,9 @@ static ostream &internal_error(int lineno) {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Predefined symbols
+//  Predefinisani simboli
 //
-//  These name the basic types/methods and a few runtime-reserved names.
+//  Imenuju osnovne tipove/metode i par naziva rezervisanih za runtime.
 //////////////////////////////////////////////////////////////////////
 
 static Symbol
@@ -104,14 +104,14 @@ static void initialize_constants(void) {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Building the inheritance graph
+//  Izgradnja grafa nasljeđivanja
 //////////////////////////////////////////////////////////////////////
 
-// Install the five built-in classes (Object, IO, Int, Bool, String).
+// Ubaci pet ugrađenih klasa (Object, IO, Int, Bool, String).
 static void install_basic_classes(void) {
     Symbol filename = stringtable.add_string("<basic class>");
 
-    // Object: abort() : Object, type_name() : String, copy() : SELF_TYPE
+    // Object: abort() : Object, type_name() : String, copy() : SELF_TYPE  (osnovna klasa)
     Class_ Object_class =
         class_(Object, No_class,
             append_Features(
@@ -133,12 +133,12 @@ static void install_basic_classes(void) {
                 single_Features(method(in_int, nil_Formals(), Int, no_expr()))),
             filename);
 
-    // Int and Bool: a single primitive value slot.
+    // Int i Bool: jedan primitivni slot za vrijednost.
     Class_ Int_class  = class_(Int,  Object, single_Features(attr(val, prim_slot, no_expr())), filename);
     Class_ Bool_class = class_(Bool, Object, single_Features(attr(val, prim_slot, no_expr())), filename);
 
     // String: length, str_field; length() : Int, concat(String) : String,
-    //         substr(Int, Int) : String
+    //         substr(Int, Int) : String  (osnovna klasa)
     Class_ Str_class =
         class_(Str, Object,
             append_Features(
@@ -161,7 +161,7 @@ static void install_basic_classes(void) {
     classTable[Str]    = Str_class;
 }
 
-// Install the user-defined classes, checking for the simplest errors.
+// Ubaci korisnički definisane klase, uz provjeru najjednostavnijih grešaka.
 static void install_classes(Classes classes) {
     for (int i = classes->first(); classes->more(i); i = classes->next(i)) {
         curr_class = classes->nth(i);
@@ -179,7 +179,7 @@ static void install_classes(Classes classes) {
     }
 }
 
-// Record each class's own methods, checking for duplicate definitions.
+// Zapamti sopstvene metode svake klase, uz provjeru duplih definicija.
 static void install_methods() {
     for (ClassTableMap::iterator it = classTable.begin(); it != classTable.end(); ++it) {
         Features features = it->second->getFeatures();
@@ -204,10 +204,10 @@ static void install_methods() {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Inheritance helpers
+//  Pomoćne funkcije za nasljeđivanje
 //////////////////////////////////////////////////////////////////////
 
-// Chain from class c up to (and including) Object.
+// Lanac od klase c naviše sve do (i uključujući) Object.
 static std::vector<Class_> getInheritanceChain(Class_ c) {
     std::vector<Class_> chain;
     while (c->getName() != Object) {
@@ -229,7 +229,7 @@ static std::vector<Class_> getInheritanceChain(Symbol name) {
     return getInheritanceChain(classTable[name]);
 }
 
-// Does type name1 conform to (is it a subtype of) type name2?
+// Da li tip name1 odgovara (da li je podtip) tipu name2?
 static bool conform(Symbol name1, Symbol name2) {
     if (name1 == SELF_TYPE && name2 == SELF_TYPE) return true;
     if (name1 != SELF_TYPE && name2 == SELF_TYPE) return false;
@@ -247,11 +247,11 @@ static bool conform(Symbol name1, Symbol name2) {
     return false;
 }
 
-// Least common ancestor of two types in the inheritance graph (the join).
+// Najbliži zajednički predak dva tipa u grafu nasljeđivanja (join).
 static Class_ LCA(Symbol name1, Symbol name2) {
     std::vector<Class_> chain1 = getInheritanceChain(name1);
     std::vector<Class_> chain2 = getInheritanceChain(name2);
-    std::reverse(chain1.begin(), chain1.end());   // now root (Object) first
+    std::reverse(chain1.begin(), chain1.end());   // sad je korijen (Object) prvi
     std::reverse(chain2.begin(), chain2.end());
 
     size_t i;
@@ -260,7 +260,7 @@ static Class_ LCA(Symbol name1, Symbol name2) {
     return chain1[i - 1];
 }
 
-// Look up a method by name in a single class (its own methods only).
+// Nađi metodu po imenu u jednoj klasi (samo njene sopstvene metode).
 static method_class *getMethod(Class_ c, Symbol method_name) {
     Methods methods = methodTable[c];
     for (size_t i = 0; i < methods.size(); i++)
@@ -268,7 +268,7 @@ static method_class *getMethod(Class_ c, Symbol method_name) {
     return 0;
 }
 
-// Look up a method by name walking up the inheritance chain of `type`.
+// Nađi metodu po imenu idući uz lanac nasljeđivanja tipa `type`.
 static method_class *lookupMethod(Symbol type, Symbol method_name) {
     std::vector<Class_> chain = getInheritanceChain(type);
     for (size_t i = 0; i < chain.size(); i++) {
@@ -279,11 +279,11 @@ static method_class *lookupMethod(Symbol type, Symbol method_name) {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Well-formedness checks on the inheritance graph
+//  Provjere ispravnosti grafa nasljeđivanja
 //////////////////////////////////////////////////////////////////////
 
 static void check_inheritance() {
-    // Every parent must be a defined class.
+    // Svaki roditelj mora da bude definisana klasa.
     for (ClassTableMap::iterator it = classTable.begin(); it != classTable.end(); ++it) {
         if (it->first == Object) continue;
         if (classTable.find(it->second->getParentName()) == classTable.end()) {
@@ -293,8 +293,8 @@ static void check_inheritance() {
         }
     }
 
-    // No cycles: walk each class's ancestry until Object; if we meet ourselves
-    // again, it's a cycle.
+    // Nema ciklusa: idi kroz pretke svake klase do Object; ako ponovo naiđemo
+    // na samu sebe, to je ciklus.
     for (ClassTableMap::iterator it = classTable.begin(); it != classTable.end(); ++it) {
         if (it->first == Object) continue;
         curr_class = it->second;
@@ -330,25 +330,25 @@ static void check_main() {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Type checking of features
+//  Provjera tipova atributa i metoda (features)
 //////////////////////////////////////////////////////////////////////
 
 static void check_features() {
     for (ClassTableMap::iterator it = classTable.begin(); it != classTable.end(); ++it) {
-        // Skip the basic classes (their bodies are trivial / built in).
+        // Preskoči osnovne klase (njihova tijela su trivijalna / ugrađena).
         if (it->first == Object || it->first == IO || it->first == Int ||
             it->first == Bool   || it->first == Str)
             continue;
 
         curr_class = it->second;
 
-        // Inheritance chain from current class up to Object.
+        // Lanac nasljeđivanja od trenutne klase do Object.
         std::vector<Class_> chain = getInheritanceChain(curr_class);
 
-        // Bring all attributes (current + inherited) into a single scope so
-        // method bodies and attribute initializers can see them.
+        // Ubaci sve atribute (trenutne + naslijeđene) u jedan opseg da bi ih
+        // tijela metoda i inicijalizatori atributa mogli vidjeti.
         objectEnv.enterscope();
-        for (int k = (int)chain.size() - 1; k >= 0; k--) {   // root -> current
+        for (int k = (int)chain.size() - 1; k >= 0; k--) {   // od korijena ka trenutnoj
             Features fs = chain[k]->getFeatures();
             for (int i = fs->first(); fs->more(i); i = fs->next(i)) {
                 if (!fs->nth(i)->isAttr()) continue;
@@ -357,15 +357,15 @@ static void check_features() {
             }
         }
 
-        // Type-check each feature of the current class.
+        // Provjeri tip svakog feature-a trenutne klase.
         Features features = curr_class->getFeatures();
         for (int i = features->first(); features->more(i); i = features->next(i)) {
             if (features->nth(i)->isMethod()) {
                 method_class *m = static_cast<method_class *>(features->nth(i));
                 m->checkType();
 
-                // A redefined (overriding) method must match the ancestor's
-                // signature exactly.
+                // Redefinisana (override) metoda mora tačno da se poklapa sa
+                // potpisom iz pretka.
                 for (size_t k = 1; k < chain.size(); k++) {
                     method_class *anc = getMethod(chain[k], m->getName());
                     if (!anc) continue;
@@ -392,8 +392,8 @@ static void check_features() {
                             << m->getName() << ".\n";
                 }
             } else {
-                // Attribute: its initializer (if any) must conform to the
-                // declared type.
+                // Atribut: njegov inicijalizator (ako postoji) mora da odgovara
+                // deklarisanom tipu.
                 attr_class *a = static_cast<attr_class *>(features->nth(i));
                 Symbol init_type = a->getInitExpr()->checkType();
                 if (a->getType() != SELF_TYPE && classTable.find(a->getType()) == classTable.end())
@@ -411,7 +411,7 @@ static void check_features() {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  checkType() — one per AST node, returning the node's inferred type.
+//  checkType() — po jedna za svaki AST čvor, vraća zaključeni tip čvora.
 //////////////////////////////////////////////////////////////////////
 
 void method_class::checkType() {
@@ -500,7 +500,7 @@ Symbol static_dispatch_class::checkType() {
         type = Object;
     } else {
         type = method->getReturnType();
-        if (type == SELF_TYPE) type = expr_type;   // SELF_TYPE resolves to receiver
+        if (type == SELF_TYPE) type = expr_type;   // SELF_TYPE se razrješava na primaoca
     }
     return type;
 }
@@ -545,7 +545,7 @@ Symbol dispatch_class::checkType() {
         type = Object;
     } else {
         type = method->getReturnType();
-        if (type == SELF_TYPE) type = expr_type;   // keep SELF_TYPE if receiver was SELF_TYPE
+        if (type == SELF_TYPE) type = expr_type;   // zadrži SELF_TYPE ako je primalac bio SELF_TYPE
     }
     return type;
 }
@@ -623,7 +623,7 @@ Symbol let_class::checkType() {
     return type;
 }
 
-// Helper for the four arithmetic operators.
+// Pomoćna funkcija za četiri aritmetička operatora.
 static Symbol check_arith(tree_node *n, Expression e1, Expression e2, const char *op) {
     Symbol t1 = e1->checkType();
     Symbol t2 = e2->checkType();
@@ -665,7 +665,7 @@ Symbol leq_class::checkType() {
 Symbol eq_class::checkType() {
     Symbol t1 = e1->checkType();
     Symbol t2 = e2->checkType();
-    // If either side is a basic type, both sides must be the SAME basic type.
+    // Ako je bilo koja strana osnovni tip, obje strane moraju biti ISTI osnovni tip.
     if ((t1 == Int || t1 == Bool || t1 == Str ||
          t2 == Int || t2 == Bool || t2 == Str) && t1 != t2)
         semant_error(this) << "Illegal comparison with a basic type.\n";
@@ -689,7 +689,7 @@ Symbol new__class::checkType() {
         semant_error(this) << "'new' used with undefined class " << type_name << ".\n";
         type = Object;
     } else {
-        type = type_name;     // may be SELF_TYPE, which is allowed for new
+        type = type_name;     // može biti SELF_TYPE, što je dozvoljeno za new
     }
     return type;
 }
@@ -718,7 +718,7 @@ Symbol object_class::checkType() {
 }
 
 //////////////////////////////////////////////////////////////////////
-//  Entry point
+//  Ulazna tačka
 //////////////////////////////////////////////////////////////////////
 
 void program_class::semant() {
@@ -728,8 +728,8 @@ void program_class::semant() {
     install_classes(classes);
     check_inheritance();
 
-    // An ill-formed inheritance graph makes everything else meaningless, so
-    // we abort here (per the handout).
+    // Loše formiran graf nasljeđivanja čini sve ostalo besmislenim, pa ovdje
+    // prekidamo (kako kaže handout).
     if (semant_errors > 0) {
         cerr << "Compilation halted due to static semantic errors." << endl;
         exit(1);

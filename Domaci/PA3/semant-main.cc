@@ -1,17 +1,17 @@
 //
 // semant-main.cc
 //
-// Self-contained driver for the Cool semantic analyzer (PA3).
+// Samostalni driver za Cool semantički analizator (PA3).
 //
-// Stanford's original setup pipes three programs (lexer | parser | semant).
-// Those rely on Linux reference binaries, so instead this driver runs all
-// three phases in one executable:
+// Stanfordov originalni setap povezuje tri programa pipe-om (lexer | parser |
+// semant). Oni se oslanjaju na Linux referentne binarne fajlove, pa umjesto
+// toga ovaj driver pokreće sve tri faze u jednom izvršnom fajlu:
 //
-//     lex+parse the .cl file  ->  AST (ast_root)
-//     ast_root->semant()      ->  type-check + annotate the AST
-//     ast_root->dump_with_types()  ->  print the type-annotated AST
+//     lex+parse .cl fajla    ->  AST (ast_root)
+//     ast_root->semant()     ->  provjeri tipove + anotiraj AST
+//     ast_root->dump_with_types()  ->  ispiši AST sa tipovima
 //
-//   usage:  semant  <file.cl>
+//   upotreba:  semant  <fajl.cl>
 //
 
 #include <cstdio>
@@ -20,18 +20,18 @@
 #include "cool-tree.h"
 #include "utilities.h"
 
-// ---- globals shared with the lexer, parser and analyzer -------------------
+// ---- globalne promjenljive zajedničke za lekser, parser i analizator ------
 
-extern FILE *yyin;            // flex input
-extern int   yyparse();       // bison entry point
+extern FILE *yyin;            // flex ulaz
+extern int   yyparse();       // ulazna tačka bisona
 
-int   curr_lineno = 1;        // current source line (maintained by the lexer)
+int   curr_lineno = 1;        // trenutna linija u izvoru (održava je lekser)
 char *curr_filename = (char *) "<stdin>";
 
-int   semant_debug = 0;       // -s debug flag (unused here, but referenced)
+int   semant_debug = 0;       // -s debug flag (ovdje se ne koristi, ali se referencira)
 
-extern int     omerrs;        // lex + parse error count (defined in cool.y)
-extern Program ast_root;      // AST root (defined in cool.y)
+extern int     omerrs;        // broj leksičkih + sintaksnih grešaka (definisan u cool.y)
+extern Program ast_root;      // korijen AST-a (definisan u cool.y)
 
 int main(int argc, char *argv[])
 {
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     }
     curr_filename = argv[1];
 
-    // Phase 1+2: lex & parse into an AST.
+    // Faza 1+2: leksiraj i parsiraj u AST.
     yyparse();
     if (omerrs != 0) {
         cerr << "Compilation halted due to lex and parse errors" << endl;
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Phase 3: semantic analysis.  semant() prints errors and calls exit(1)
-    // itself if it finds any static-semantic errors.
+    // Faza 3: semantička analiza. semant() sam ispisuje greške i poziva exit(1)
+    // ako nađe bilo kakve statičke semantičke greške.
     ast_root->semant();
 
-    // For a well-formed program, print the type-annotated AST.
+    // Za ispravan program, ispiši AST sa tipovima.
     ast_root->dump_with_types(cout, 0);
 
     fclose(yyin);

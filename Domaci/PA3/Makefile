@@ -1,11 +1,11 @@
-# Makefile for the Cool semantic analyzer (PA3)
-# Usage:
-#   make          — build the `semant` binary
-#   make test     — build, then analyze good.cl
-#   make clean    — remove generated files
+# Makefile za Cool semantički analizator (PA3)
+# Upotreba:
+#   make          — napravi `semant` binarni fajl
+#   make test     — napravi, pa analiziraj good.cl
+#   make clean    — obriši generisane fajlove
 #
-# Self-contained: lexer + parser + semantic analyzer are linked into ONE
-# executable (no reference binaries / pipes), so it runs on macOS.
+# Samostalno: lekser + parser + semantički analizator su povezani u JEDAN
+# izvršni fajl (bez referentnih binarnih fajlova / pipe-ova), pa radi na macOS-u.
 
 CXX   = g++
 FLEX  = flex
@@ -15,11 +15,11 @@ CPPINCLUDE = -I.
 CXXFLAGS   = -std=c++11 -g -Wall -Wno-unused -Wno-write-strings -Wno-deprecated $(CPPINCLUDE)
 BISONFLAGS = -d --defines=cool-parse.h -o cool-parse.cc -v
 
-# Provided support sources (not generated)
+# Dati support fajlovi (nisu generisani)
 SUPPORT = tree.cc cool-tree.cc stringtab.cc utilities.cc dumptype.cc \
           semant.cc semant-main.cc
 
-# Generated sources
+# Generisani fajlovi
 GEN = cool-parse.cc lex.yy.cc
 
 OBJS = $(GEN:.cc=.o) $(SUPPORT:.cc=.o)
