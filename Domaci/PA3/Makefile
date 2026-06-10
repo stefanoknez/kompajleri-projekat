@@ -7,11 +7,13 @@
 # Samostalno: lekser + parser + semantički analizator su povezani u JEDAN
 # izvršni fajl (bez referentnih binarnih fajlova / pipe-ova), pa radi na macOS-u.
 
+# alati koje koristimo (g++ za kompajliranje, flex za lekser, bison za parser)
 CXX   = g++
 FLEX  = flex
 BISON = bison
 
 CPPINCLUDE = -I.
+# zastavice: c++11, debug info, upozorenja (par ih gasimo zbog starog support koda)
 CXXFLAGS   = -std=c++11 -g -Wall -Wno-unused -Wno-write-strings -Wno-deprecated $(CPPINCLUDE)
 BISONFLAGS = -d --defines=cool-parse.h -o cool-parse.cc -v
 
@@ -22,10 +24,12 @@ SUPPORT = tree.cc cool-tree.cc stringtab.cc utilities.cc dumptype.cc \
 # Generisani fajlovi
 GEN = cool-parse.cc lex.yy.cc
 
+# sve pretvaramo u .o pa ih na kraju linkujemo zajedno
 OBJS = $(GEN:.cc=.o) $(SUPPORT:.cc=.o)
 
 .PHONY: all test clean
 
+# podrazumijevani cilj — samo `make` pravi semant
 all: semant
 
 cool-parse.cc cool-parse.h: cool.y
@@ -37,6 +41,7 @@ lex.yy.cc: cool.flex cool-parse.h
 semant: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o semant $(OBJS)
 
+# svaki .cc fajl u svoj .o
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
