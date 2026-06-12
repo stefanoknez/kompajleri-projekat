@@ -1,48 +1,78 @@
+"""
+zad2 / neparni.py
+
+Pravi dvije stvari za jezik "neparan broj bar jednog od slova a, b ili c":
+  1) NFA dijagram        ->  nfa_neparni.png
+  2) tablicu prelaza NFA ->  tablica_neparni.png
+
+NFA na pocetku epsilon-granama "pogadja" za koje slovo brojimo parnost
+(tri grane: A za 'a', B za 'b', C za 'c'). Svaka grana ima par/nepar stanje
+i prebacuje se kad procita "svoje" slovo.
+
+Pokretanje:  python3 neparni.py   (treba graphviz + matplotlib)
+"""
+
 from graphviz import Digraph
 import matplotlib.pyplot as plt
 
-# 1. GENERIRANJE DIJAGRAMA AUTOMATA (NFA)
+# =====================================================================
+# 1) NFA DIJAGRAM
+# =====================================================================
 nfa = Digraph('NFA_Neparni_Znakovi', format='png')
 nfa.attr(rankdir='LR')
 
-# Stanja
-nfa.node('start', 'Početno', shape='point')
-nfa.node('q0', 'q0')
-nfa.node('A_par', 'A_par')
-nfa.node('A_nep', 'A_nep', shape='doublecircle')
-nfa.node('B_par', 'B_par')
-nfa.node('B_nep', 'B_nep', shape='doublecircle')
-nfa.node('C_par', 'C_par')
-nfa.node('C_nep', 'C_nep', shape='doublecircle')
+# stanja: *_nep su zavrsna (neparan broj -> dvostruki krug)
+stanja = [
+    ('start', 'Početno', 'point'),
+    ('q0', 'q0', None),
+    ('A_par', 'A_par', None),
+    ('A_nep', 'A_nep', 'doublecircle'),
+    ('B_par', 'B_par', None),
+    ('B_nep', 'B_nep', 'doublecircle'),
+    ('C_par', 'C_par', None),
+    ('C_nep', 'C_nep', 'doublecircle'),
+]
+for cid, natpis, oblik in stanja:
+    if oblik:
+        nfa.node(cid, natpis, shape=oblik)
+    else:
+        nfa.node(cid, natpis)
 
-# Početni smjer i epsilon prijelazi
-nfa.edge('start', 'q0')
-nfa.edge('q0', 'A_par', label='ε')
-nfa.edge('q0', 'B_par', label='ε')
-nfa.edge('q0', 'C_par', label='ε')
-
-# Grana za A
-nfa.edge('A_par', 'A_nep', label='a')
-nfa.edge('A_nep', 'A_par', label='a')
-nfa.edge('A_par', 'A_par', label='b,c')
-nfa.edge('A_nep', 'A_nep', label='b,c')
-
-# Grana za B
-nfa.edge('B_par', 'B_nep', label='b')
-nfa.edge('B_nep', 'B_par', label='b')
-nfa.edge('B_par', 'B_par', label='a,c')
-nfa.edge('B_nep', 'B_nep', label='a,c')
-
-# Grana za C
-nfa.edge('C_par', 'C_nep', label='c')
-nfa.edge('C_nep', 'C_par', label='c')
-nfa.edge('C_par', 'C_par', label='a,b')
-nfa.edge('C_nep', 'C_nep', label='a,b')
+# prelazi: prvo epsilon "biranje" grane, pa za svaku granu par<->nepar logika
+prelazi = [
+    ('start', 'q0', None),
+    # epsilon skok u sve tri grane (NFA pogadja koju parnost pratimo)
+    ('q0', 'A_par', 'ε'),
+    ('q0', 'B_par', 'ε'),
+    ('q0', 'C_par', 'ε'),
+    # grana A: 'a' mijenja parnost, ostala slova ne diraju
+    ('A_par', 'A_nep', 'a'),
+    ('A_nep', 'A_par', 'a'),
+    ('A_par', 'A_par', 'b,c'),
+    ('A_nep', 'A_nep', 'b,c'),
+    # grana B: 'b' mijenja parnost
+    ('B_par', 'B_nep', 'b'),
+    ('B_nep', 'B_par', 'b'),
+    ('B_par', 'B_par', 'a,c'),
+    ('B_nep', 'B_nep', 'a,c'),
+    # grana C: 'c' mijenja parnost
+    ('C_par', 'C_nep', 'c'),
+    ('C_nep', 'C_par', 'c'),
+    ('C_par', 'C_par', 'a,b'),
+    ('C_nep', 'C_nep', 'a,b'),
+]
+for iz, u, natpis in prelazi:
+    if natpis:
+        nfa.edge(iz, u, label=natpis)
+    else:
+        nfa.edge(iz, u)
 
 nfa.render('nfa_neparni', cleanup=True)
 print("NFA graf je uspješno spremljen!")
 
-# 2. GENERIRANJE SLIKE TABLICE PRIJELAZA
+# =====================================================================
+# 2) TABLICA PRELAZA (kao slika)
+# =====================================================================
 stupci = ['Stanje', 'Ulaz a', 'Ulaz b', 'Ulaz c', 'Ulaz ε']
 podaci = [
     ['q0 (Početno)', 'Ø', 'Ø', 'Ø', '{A_par, B_par, C_par}'],
@@ -51,7 +81,7 @@ podaci = [
     ['B_par', '{B_par}', '{B_nep}', '{B_par}', 'Ø'],
     ['B_nep (Završno)', '{B_nep}', '{B_par}', '{B_nep}', 'Ø'],
     ['C_par', '{C_par}', '{C_par}', '{C_nep}', 'Ø'],
-    ['C_nep (Završno)', '{C_nep}', '{C_nep}', '{C_par}', 'Ø']
+    ['C_nep (Završno)', '{C_nep}', '{C_nep}', '{C_par}', 'Ø'],
 ]
 
 fig, ax = plt.subplots(figsize=(9, 4))
@@ -63,12 +93,13 @@ tablica.set_fontsize(10)
 tablica.auto_set_column_width(col=list(range(len(stupci))))
 tablica.scale(1, 1.8)
 
-for (row, col), cell in tablica.get_celld().items():
-    if row == 0:
-        cell.set_text_props(weight='bold', color='white')
-        cell.set_facecolor('#2C3E50')
-    elif row > 0 and col == 0:
-        cell.set_text_props(weight='bold')
+# zaglavlje tamno-plavo, prva kolona bold
+for (red, kol), celija in tablica.get_celld().items():
+    if red == 0:
+        celija.set_text_props(weight='bold', color='white')
+        celija.set_facecolor('#2C3E50')
+    elif red > 0 and kol == 0:
+        celija.set_text_props(weight='bold')
 
 plt.savefig('tablica_neparni.png', bbox_inches='tight', dpi=300)
-print("Tablica prijelaza je uspješno spremljena!")
+print("Tablica prelaza je uspješno spremljena!")

@@ -1,36 +1,46 @@
-import os
+"""
+zad5 / pad_lexera.py
+
+Crta sliku koja objasnjava zasto "greedy" (pohlepno) poklapanje zna da zakaze
+kod leksera, na primjeru regexa (a+|ab) i ulaza 'aab'.
+Izlaz:  maximal_munch_failure.png
+
+Crtamo direktno preko PIL-a: bijela pozadina, naslov, vizuelizacija ispravne
+podjele 'aab' = 'a' + 'ab' (sa podvlakama), pa tekstualno objasnjenje ispod.
+
+Pokretanje:  python3 pad_lexera.py   (treba Pillow / PIL)
+"""
+
 from PIL import Image, ImageDraw, ImageFont
 
-# 1. Kreiranje bijele slike
+# --- platno -------------------------------------------------------------
 img = Image.new('RGB', (1000, 650), color='white')
 draw = ImageDraw.Draw(img)
 
-# 2. Putanja do fonta
+# --- fontovi (ako Verdana ne postoji, padni na default da ne pukne) ------
 font_path = "/System/Library/Fonts/Supplemental/Verdana.ttf"
 font_bold_path = "/System/Library/Fonts/Supplemental/Verdana Bold.ttf"
-
-# Povećane veličine fonta
 try:
-    f_reg = ImageFont.truetype(font_path, 18)    # Tekst tijela
-    f_title = ImageFont.truetype(font_bold_path, 24) # Naslovi
-except:
+    f_reg = ImageFont.truetype(font_path, 18)         # obican tekst
+    f_title = ImageFont.truetype(font_bold_path, 24)  # naslovi
+except Exception:
     f_reg = ImageFont.load_default()
     f_title = ImageFont.load_default()
 
-# 3. Ispis naslova
+# --- naslov -------------------------------------------------------------
 draw.text((40, 40), "Zašto Greedy matching zakazuje", fill="black", font=f_title)
 
-# 4. Vizuelizacija ispravne tokenizacije
+# --- ispravna podjela 'aab' = 'a' + 'ab', svaki leksem podvucen ----------
 draw.text((40, 100), "Teoretski ispravna podjela (aab = a + ab):", fill="black", font=f_reg)
 lexemes = ["a", "ab"]
 x, y = 40, 140
 for lex in lexemes:
     draw.text((x, y), lex, fill="black", font=f_title)
     w = draw.textlength(lex, font=f_title)
-    draw.line([(x, y + 32), (x + w, y + 32)], fill="black", width=3)
-    x += w + 20
+    draw.line([(x, y + 32), (x + w, y + 32)], fill="black", width=3)  # podvlaka
+    x += w + 20  # razmak do sljedeceg leksema
 
-# 5. Tekstualno objašnjenje
+# --- tekstualno objasnjenje korak-po-korak ------------------------------
 objasnjenje = (
     "Reg. izraz: (a+|ab) | Ulazni string: 'aab'\n\n"
     "1. Greedy korak (Pozicija 0): Algoritam traži najduži meč.\n"
@@ -44,6 +54,6 @@ objasnjenje = (
 )
 draw.text((40, 220), objasnjenje, fill="black", font=f_reg)
 
-# 6. Snimanje
+# --- snimanje -----------------------------------------------------------
 img.save('maximal_munch_failure.png')
 print("Slika 'maximal_munch_failure.png' je uspješno kreirana sa uvećanim fontom!")

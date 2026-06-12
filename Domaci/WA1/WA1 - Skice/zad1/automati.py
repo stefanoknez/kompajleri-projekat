@@ -1,46 +1,84 @@
+"""
+zad1 / automati.py
+
+Crta dva automata za jezik (0|1)*110 i snimi ih kao PNG:
+  - NFA  ->  nfa_izlaz.png
+  - DFA  ->  dfa_izlaz.png
+
+Ideja: umjesto da rucno zovem node()/edge() za svaki automat posebno,
+stanja i prelaze drzim u listama, pa ih jedna pomocna funkcija samo prosrljka.
+Tako je lakse i dodati/izmijeniti neki prelaz.
+
+Pokretanje:  python3 automati.py   (treba ti instaliran graphviz)
+"""
+
 from graphviz import Digraph
 
-# 1. Generiranje NFA
-nfa = Digraph('NFA', comment='NFA za (0|1)*110', format='png')
-nfa.attr(rankdir='LR')
 
-# Stanja
-nfa.node('q0', 'q0 (Početno)')
-nfa.node('q1', 'q1')
-nfa.node('q2', 'q2')
-nfa.node('q3', 'q3', shape='doublecircle') # Završno stanje
+def napravi_automat(naziv, komentar, stanja, prelazi, izlaz):
+    """Sklepa jedan usmjereni graf (automat) i snimi ga kao PNG.
 
-# Prijelazi
-nfa.edge('q0', 'q0', label='0,1')
-nfa.edge('q0', 'q1', label='1')
-nfa.edge('q1', 'q2', label='1')
-nfa.edge('q2', 'q3', label='0')
+    stanja  -> lista cvorova: (id, natpis) ili (id, natpis, oblik)
+    prelazi -> lista grana:   (iz, u) ili (iz, u, natpis_na_grani)
+    izlaz   -> ime fajla bez ekstenzije
+    """
+    g = Digraph(naziv, comment=komentar, format='png')
+    g.attr(rankdir='LR')  # crta s lijeva na desno, preglednije za citanje
 
-nfa.render('nfa_izlaz', cleanup=True)
-print("NFA je uspješno generiran kao 'nfa_izlaz.png'")
+    # ubaci sva stanja (ako je dat oblik, koristi ga; inace default)
+    for cvor in stanja:
+        if len(cvor) == 3:
+            cid, natpis, oblik = cvor
+            g.node(cid, natpis, shape=oblik)
+        else:
+            cid, natpis = cvor
+            g.node(cid, natpis)
 
-# 2. Generiranje DFA
-dfa = Digraph('DFA', comment='DFA za (0|1)*110', format='png')
-dfa.attr(rankdir='LR')
+    # ubaci sve prelaze (grana moze, ali ne mora, imati natpis)
+    for prelaz in prelazi:
+        if len(prelaz) == 3:
+            iz, u, natpis = prelaz
+            g.edge(iz, u, label=natpis)
+        else:
+            iz, u = prelaz
+            g.edge(iz, u)
 
-# Stanja
-dfa.node('A', 'A (Početno)')
-dfa.node('B', 'B')
-dfa.node('C', 'C')
-dfa.node('D', 'D', shape='doublecircle') # Završno stanje
+    g.render(izlaz, cleanup=True)
+    print(f"Automat snimljen kao '{izlaz}.png'")
 
-# Prijelazi prema tablici
-dfa.edge('A', 'A', label='0')
-dfa.edge('A', 'B', label='1')
 
-dfa.edge('B', 'A', label='0')
-dfa.edge('B', 'C', label='1')
+# --- 1) NFA za (0|1)*110 ------------------------------------------------
+# q3 je dvostruki krug jer je to jedino zavrsno stanje.
+nfa_stanja = [
+    ('q0', 'q0 (Početno)'),
+    ('q1', 'q1'),
+    ('q2', 'q2'),
+    ('q3', 'q3', 'doublecircle'),
+]
+nfa_prelazi = [
+    ('q0', 'q0', '0,1'),   # petlja: cita bilo sta dok ne krene "110"
+    ('q0', 'q1', '1'),
+    ('q1', 'q2', '1'),
+    ('q2', 'q3', '0'),     # zatvaramo "110" -> zavrsno
+]
+napravi_automat('NFA', 'NFA za (0|1)*110', nfa_stanja, nfa_prelazi, 'nfa_izlaz')
 
-dfa.edge('C', 'D', label='0')
-dfa.edge('C', 'C', label='1')
-
-dfa.edge('D', 'A', label='0')
-dfa.edge('D', 'B', label='1')
-
-dfa.render('dfa_izlaz', cleanup=True)
-print("DFA je uspješno generiran kao 'dfa_izlaz.png'")
+# --- 2) DFA za (0|1)*110 ------------------------------------------------
+# D je zavrsno (dvostruki krug). Prelazi su prepisani iz tablice prelaza.
+dfa_stanja = [
+    ('A', 'A (Početno)'),
+    ('B', 'B'),
+    ('C', 'C'),
+    ('D', 'D', 'doublecircle'),
+]
+dfa_prelazi = [
+    ('A', 'A', '0'),
+    ('A', 'B', '1'),
+    ('B', 'A', '0'),
+    ('B', 'C', '1'),
+    ('C', 'D', '0'),
+    ('C', 'C', '1'),
+    ('D', 'A', '0'),
+    ('D', 'B', '1'),
+]
+napravi_automat('DFA', 'DFA za (0|1)*110', dfa_stanja, dfa_prelazi, 'dfa_izlaz')
