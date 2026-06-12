@@ -15,6 +15,7 @@ err () { if ./semant "$1" >/dev/null 2>&1; then echo "FAIL  $1 should fail"; fai
 # ispravni programi
 ok  good.cl
 ok  tests/selftype.cl
+ok  tests/dispatch.cl
 # semantičke greške
 err bad.cl
 err tests/cycle.cl
