@@ -25,6 +25,7 @@ check_ok  tests/prec.cl
 check_ok  tests/lets.cl
 check_ok  tests/disp.cl
 check_ok  tests/ctrl.cl
+check_ok  tests/inherit.cl
 check_err tests/nonassoc.cl
 check_ok  good.cl
 check_err bad.cl
