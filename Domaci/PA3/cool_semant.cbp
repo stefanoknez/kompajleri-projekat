@@ -9,7 +9,7 @@
 			<Target title="Debug">
 				<!-- type=4 : Commands only. run_build.sh does bison+flex+make+copy
 				     and opens a Terminal running the analyzer. (Same as PA1/PA2.) -->
-				<Option output="bin/Debug/semant" prefix_auto="0" extension_auto="0" />
+				<Option output="" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option type="4" />
 				<Option compiler="gcc" />

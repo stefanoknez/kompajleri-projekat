@@ -5,7 +5,8 @@
 cd "$(dirname "$0")"
 export PATH="/opt/homebrew/opt/bison/bin:/opt/homebrew/opt/flex/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
-# Build: bison -> flex -> kompajliranje/povezivanje u ./semant
+# Počisti stare .o fajlove (mogu biti kriva arhitektura) pa buildi čisto
+make clean
 make
 
 # Kopiraj binarni fajl tamo gdje ga CodeBlocks / PA3_run.sh očekuju
