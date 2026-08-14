@@ -1,114 +1,113 @@
-# Programski prevodioci (Kompajleri)
+# Compilers (Programski prevodioci)
 
-Repo za domaće zadatke i materijale s predmeta **Programski prevodioci**,
-treća godina, drugi semestar.
+Repository for homework assignments and course materials from the **Compilers** course,
+third year, second semester.
 
-> **Napomena:** Ovaj repozitorijum je privatan.
+> **Note:** This repository is private.
 
 ---
 
-## Struktura foldera
+## Folder structure
 
 ```
 .
-├── Domaci/          # Postavke domaćih zadataka (PDF)
+├── Domaci/          # Homework assignment PDFs and solutions
 │   ├── WA1.pdf      # Written Assignment 1 (Stanford CS143)
 │   ├── WA2.pdf      # Written Assignment 2 (Stanford CS143)
 │   ├── PA1.pdf      # Programming Assignment 1 – Lexer
 │   ├── PA2.pdf      # Programming Assignment 2 – Parser
-│   ├── PA3.pdf      # Programming Assignment 3 – Semantička analiza
-│   ├── WA1/         # Moje rješenje za WA1
-│   ├── WA2/         # Moje rješenje za WA2
-│   ├── PA1/         # Moj kod za PA1 (lekser, Flex)
-│   ├── PA2/         # Moj kod za PA2 (parser, Bison)
-│   └── PA3/         # Moj kod za PA3 (semantička analiza)
+│   ├── PA3.pdf      # Programming Assignment 3 – Semantic Analysis
+│   ├── WA1/         # My solution for WA1
+│   ├── WA2/         # My solution for WA2
+│   ├── PA1/         # My code for PA1 (lexer, Flex)
+│   ├── PA2/         # My code for PA2 (parser, Bison)
+│   └── PA3/         # My code for PA3 (semantic analysis)
 │
-├── vjezbe/          # Vježbe po temama
-│   ├── lex-flex/    # Leksička analiza (Flex)
-│   ├── bison/       # Sintaksna analiza (Bison)
-│   ├── mips/        # Generisanje koda (MIPS)
-│   └── automati/    # Konačni automati
+├── vjezbe/          # Practice exercises by topic
+│   ├── lex-flex/    # Lexical analysis (Flex)
+│   ├── bison/       # Syntax analysis (Bison)
+│   ├── mips/        # Code generation (MIPS)
+│   └── automati/    # Finite automata
 │
-├── teorija/         # Markdown bilješke o konceptima
+├── teorija/         # Markdown notes on concepts
 │                    # (regex, DFA, CFG, FIRST/FOLLOW, ...)
 │
-└── kolokvijum/      # Priprema za kolokvijum
+└── kolokvijum/      # Exam preparation
     ├── stari-zadaci/
     └── moja-rjesenja/
 ```
 
 ---
 
-## Cool kompajler — tri faze (PA1, PA2, PA3)
+## Cool compiler — three phases (PA1, PA2, PA3)
 
-Programski zadaci grade prednji dio (front-end) kompajlera za jezik **Cool**.
-Svaka faza koristi izlaz prethodne:
+The programming assignments build the front-end of a compiler for the **Cool** language.
+Each phase feeds into the next:
 
 ```
-izvorni.cl ──▶ [PA1 Lekser] ──▶ tokeni ──▶ [PA2 Parser] ──▶ AST ──▶ [PA3 Semantika] ──▶ AST sa tipovima
-               (Flex)                      (Bison)                  (semant.cc)
+source.cl ──▶ [PA1 Lexer] ──▶ tokens ──▶ [PA2 Parser] ──▶ AST ──▶ [PA3 Semantics] ──▶ typed AST
+              (Flex)                      (Bison)                   (semant.cc)
 ```
 
-- **PA1 – Lekser:** čita karaktere i grupiše ih u tokene (Flex).
-- **PA2 – Parser:** od tokena gradi apstraktno sintaksno stablo / AST (Bison).
-- **PA3 – Semantička analiza:** provjerava nasljeđivanje, opsege i tipove, i
-  upisuje tip svakom čvoru u stablu.
+- **PA1 – Lexer:** reads characters and groups them into tokens (Flex).
+- **PA2 – Parser:** builds an abstract syntax tree / AST from tokens (Bison).
+- **PA3 – Semantic analysis:** checks inheritance, scopes, and types, and
+  annotates every AST node with its type.
 
-Svaka faza je **samostalna** (jedan izvršni fajl) i radi na macOS-u — nisu
-potrebni Stanfordovi Linux binarni fajlovi ni pipe-ovi.
+Each phase is **self-contained** (a single executable) and runs on macOS — no
+Stanford Linux binaries or pipes required.
 
 ---
 
-## Kako pokrenuti projekat
+## How to run
 
-Potrebno je imati **flex** i **bison** (na macu preko Homebrew-a:
-`brew install flex bison`).
+Requires **flex** and **bison** (on macOS via Homebrew: `brew install flex bison`).
 
-### 1) Terminal (make) — najjednostavnije
+### 1) Terminal (make) — simplest
 
-Uđi u folder zadatka i kucaj `make`:
+Enter the assignment folder and run `make`:
 
 ```bash
-# PA1 – lekser
+# PA1 – lexer
 cd Domaci/PA1
 make
-./lexer test.cl          # ispisuje tokene
-make test                # build + pokretanje
+./lexer test.cl          # prints tokens
+make test                # build + run
 make clean
 
 # PA2 – parser
 cd Domaci/PA2
 make
-./parser good.cl         # ispisuje AST
-bash tests/run_tests.sh  # svi testovi
+./parser good.cl         # prints AST
+bash tests/run_tests.sh  # all tests
 
-# PA3 – semantička analiza
+# PA3 – semantic analysis
 cd Domaci/PA3
 make
-./semant good.cl         # ispisuje AST sa tipovima (ili greške)
-bash tests/run_tests.sh  # svi testovi
+./semant good.cl         # prints typed AST (or errors)
+bash tests/run_tests.sh  # all tests
 ```
 
-Možeš pokrenuti bilo koji `.cl` fajl: `./lexer fajl.cl`, `./parser fajl.cl`,
-`./semant fajl.cl`.
+Any `.cl` file can be passed directly: `./lexer file.cl`, `./parser file.cl`,
+`./semant file.cl`.
 
 ### 2) VS Code
 
-Otvori folder zadatka (npr. `Domaci/PA3`) i pritisni **Cmd+Shift+B** da se
-build-uje. Za pokretanje: **Cmd+Shift+P → Tasks: Run Task → "Run ... on good.cl"**.
-Izlaz se vidi u ugrađenom terminalu.
+Open the assignment folder (e.g. `Domaci/PA3`) and press **Cmd+Shift+B** to build.
+To run: **Cmd+Shift+P → Tasks: Run Task → "Run ... on good.cl"**.
+Output appears in the integrated terminal.
 
 ### 3) CodeBlocks
 
-Otvori projekat (`cool_lexer.cbp` / `cool_parser.cbp` / `cool_semant.cbp`) i
-pritisni **Build (Ctrl-F9)**. Otvara se Terminal prozor i pokreće program na
-test fajlovima. (Koristi se dugme **Build**, ne Run.)
+Open the project (`cool_lexer.cbp` / `cool_parser.cbp` / `cool_semant.cbp`) and
+press **Build (Ctrl-F9)**. A Terminal window opens and runs the program on the test
+files. (Use the **Build** button, not Run.)
 
 ---
 
-## Brza provjera (good.cl vs bad.cl)
+## Quick sanity check (good.cl vs bad.cl)
 
-- **`good.cl`** — ispravan program; prolazi i ispisuje rezultat.
-- **`bad.cl`** — namjerne greške; ispisuju se poruke sa brojem linije.
-- Razlika PA2 i PA3: PA2 pokazuje `: _no_type` na svakom izrazu, a PA3 popuni
-  prave tipove (`: Int`, `: Bool`, `: SELF_TYPE`, ...).
+- **`good.cl`** — a valid program; passes and prints the result.
+- **`bad.cl`** — intentional errors; error messages with line numbers are printed.
+- Difference between PA2 and PA3: PA2 shows `: _no_type` on every expression,
+  while PA3 fills in the real types (`: Int`, `: Bool`, `: SELF_TYPE`, ...).
